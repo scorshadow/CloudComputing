@@ -1,0 +1,14 @@
+1.创建仓库
+2.克隆到本地
+3.将需要的文件放到git目录下
+4.配置
+git config --globle user.eamail账号
+git pull
+5.如果目录下有新的文件
+git add -A.
+6.提交更改
+git commit
+输入备注
+7.上传
+git push
+账号 密码
