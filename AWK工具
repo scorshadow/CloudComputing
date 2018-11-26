@@ -33,5 +33,7 @@ awk -F: '{print NR,NF}' passwd.txt
 2 7
 3 7
 4 7
-
+统计web访问量排名
+awk '{ip[$1]++} END{} access_log | sort -n'
+for (i in ip) {print ip[i],i}
 
