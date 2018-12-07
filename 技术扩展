@@ -2,3 +2,27 @@
 1，官方yum源 2,共有源 数字签名保证安全 3，私有源
 
 生产环境中，共有源与私有源相结合，下载rpm包到一台服务器作为yum服务器，其他服务器的yum源指向这台服务器。
+umask [-p][-S][mode]
+umask -S u=rwx,g=rx,o=rx
+选项 
+mode 文件创建掩码
+S 以符号格式打印掩码
+-p 以可重用的格式输出
+-S 最终权限模式
+-p 权限为取差值(数字)
+xargs
+-i 表示find传递给xargs的结果由{}来代替
+-I -i可以用-I{}来代替
+-d 分隔符
+-p 交互式提问y来确认命令的每次执行
+-t 在执行前回显各个command
+cat aaa | xargs -I 12345 echo yum install 12345
+cat aaa | xargs -i -p -t echo yum install {}
+批量安装软件
+cat softlis|xargs -i rpm -ivh {}
+批量给文件加扩展名
+ls | xargs -i mv {}{}.txt
+批量移动文件
+find ./ -type f -mtime -1000|xargs -i mv {} /urfile/{}
+
+
