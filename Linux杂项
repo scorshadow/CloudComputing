@@ -4,3 +4,5 @@ vim /etc/default/grub
 设置终端语言
 LANG=zh_CN.utf-8
 
+pxe装机时使用的system-config-kickstart图形工具 基本配置--》时区 非常重要务必正确。使用 UTC时钟 选项不必选择,安装 windows linux 双系统时要选择，否则
+windows 与 linux 系统时间相差8个小时，两个系统时间设置有区别。
