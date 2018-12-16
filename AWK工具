@@ -37,3 +37,130 @@ awk -F: '{print NR,NF}' passwd.txt
 awk '{ip[$1]++} END{} access_log | sort -n'
 for (i in ip) {print ip[i],i}
 
+
+格式：awk [选项] '[条件]{指令}' 文件
+          前置命令 | awk [选项] '[条件]{指令}'
+
+df -h / |tail -1 |awk '{print $4}'   //使用awk查看根分区剩余空间
+
+指定awk分隔符，默认是空格或者tab键
+awk -F: '{print $7}'  /etc/passwd    //使用:作为分隔符，并输出第7列内容
+
+awk的内置变量
+$0 输出当前行所有内容
+$1
+$2
+.......
+NR 行号
+NF 列号
+awk -F: '{print NF}' user   //输出文本每行有多少列
+awk -F: '{print NR,NF}' user  //输出文本有多少行，多少列
+
+使用awk输出常量
+awk -F: '{print "测试"}' user  //输出常量
+awk -F: '{print "用户",$1,"的shell是 ",$7}' user  //输出内置变量与常量
+
+df -h | awk '/\/$/{print $4}'   //使用正则查找结尾是/的行，再输出第4列
+
+使用awk寻找登陆密码错误的连接者，先在连接时故意输错密码，在/var/log/secure中按G可以看到最后一行记录了连接信息，Failed 是连接失败。
+使用server远程连接desktop
+awk '/Failed/{print $11}' /var/log/secure  //在desktop中输入指令
+
+
+awk处理的时机
+
+BEGIN{ } 行前处理，读取文件内容前执行，指令执行1次
+{ } 逐行处理，读取文件过程中执行，指令执行n次
+END{ } 行后处理，读取文件结束后执行，指令执行1次
+
+awk 'BEGIN{print 10+10,2*3}'   //使用awk在逐行任务前做某些操作
+案例：
+awk '/Failed/{print "尝试登陆主机的用户是"$11;x++}END{print "失败的次数" x}' secure      //使用awk在逐行处理时一旦找到符合正则条件的行时就执行x++，逐行任务结束后输出x的值
+案例:
+awk -F: 'BEGIN{print "User\tUID\tHome"}{print $1"\t"$3"\t"$6}END{print "Total\t" NR "\tline"}' /etc/passwd    //使用awk输出带表头与结尾统计的内容   \t是tab效果
+
+基本格式
+awk -F: 'BEGIN{ 逐行任务前的指令  }{ 逐行任务  }END{ 逐行任务后的指令   }'  文件    
+
+
+认识awk处理条件的设置
+1）使用正则、~  匹配、！～不匹配 设置条件
+
+2）使用数值/字符串比较设置条件
+
+比较符号：==(等于) !=（不等于） >（大于）
+
+>=（大于等于） <（小于） <=（小于等于）
+
+
+$3>1000 || $3<10
+$3>1000 && $3<10
+
+3）逻辑测试条件
+
+NR   行 
+NF   列
+
+awk '{print NF}' nr  //输出每行的总列数
+
+awk '{x+=NF}END{print x}' nr   //计算一个文档不同行的列数总和
+文档内容如下：
+abc  xyz  123
+abc
+xyz  123
+abc  xyz  123  abc  xyz  123
+abc  xyz  123  abc  xyz
+
+按 “名字  -->  加密密码” 的格式输出使用bash的用户
+#!/bin/bash
+n=`awk -F: '/bash$/{print $1}' /etc/passwd`   //找到使用bash的用户，并输出名字到变量n中
+for i in $n       //使用for循环依次显示变量n中的名字
+do
+        grep $i /etc/shadow |awk -F: '{print $1,"-->" ,$2}'      //筛出在shadow文件中的用户，并输出第一列名字，和第二列密码
+done
+
+
+单分支
+if[];then
+	任务指令
+fi
+双分支
+if[];then
+	任务指令
+else
+	任务指令
+fi
+多分支
+if[];then
+	任务指令
+elif[];then
+	任务指令
+else
+	任务指令
+fi
+
+
+awk中使用if判断
+单分支
+awk '{if(条件测试){执行指令}}' 文件
+双分支
+awk '{if(条件测试){执行指令} else{执行指令}}' 文件
+多分支
+awk '{if(条件测试){执行指令} else if(条件测试){执行指令} else{执行指令}}' 文件
+
+awk -F: '{if($3<10){i++;j++}else if($3<50){j++}else{l++}}END{print i,j,l }' /etc/passwd
+9 16 23
+
+
+shu[123]=2
+shu[456]=2
+shu[789]=1
+
+awk  '{shu[$1]++}END{for(i in shu){print shu[i],i}}'  shuzi
+
+[root@server0 ~]# cat shuzi 
+123
+456
+789
+123
+456
