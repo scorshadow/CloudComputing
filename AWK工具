@@ -1,3 +1,745 @@
+命令的历史记录：
+vim /etc/profile    //修改历史记录
+        找到    HISTSIZE=1000  修改为合适的值
+重新登陆帐号使用  history 检测修改结果
+使用history -c 可以清空历史记录缓存
+使用 > /root/.bash_history  可以清空历史记录
+
+alias   //查看别名
+alias ld='ls -ldh'   //临时设置别名
+vim /root/.bashrc    //永久设置别名
+unalias  ld			//取消别名
+
+重定向
+标准输出   1
+标准错误   2
+
+
+#!/bin/bash
+for i in {1..10}
+do
+	useradd user$i 2>> /opt/e.txt      //创建账户并收集错误信息
+	echo 123456 |passwd --stdin user$i > /dev/null   //修改密码并不显示相关信息
+done
+
+chmod u+x  /opt/user         //添加执行权限
+/opt/user       //执行脚本
+id user1   //查看用户创建结果
+cat /opt/e.txt      //查看错误信息
+
+1，给脚本增加x权限，使用绝对路径执行
+2，bash 脚本名称   // 再次开启一个进程
+3， . 脚本名称	 不开启新进程   
+4， source 脚本名称	 
+
+bash -x yumtest    //-x选项可以显示脚本中每条命令执行的细节，有助排错
+
+" "     界定范围
+'  '    界定范围，屏蔽特殊的含义
+` ` 或 $()    可以把通过命令得到的结果当作参数使用
+
+tar -czf log`date +%Y-%m-%d`.tar.gz /var/log   //按时间定义文件名
+
+
+
+
+
+
+
+
+$0   显示执行脚本的名称
+$1~$n  显示参数
+$#  位置变量的个数
+$*  所有位置变量
+$?  确认上一条命令执行结果
+$$  当前脚本的进程号
+
+变量种类：
+环境变量
+位置变量
+预定义变量
+自定义变量
+
+
+export   a=10     //定义全局变量，使子进程可以使用变量
+export -n a       //取消定义全局变量
+
+PS1  一级提示符    
+PS2  二级提示符
+
+
+
+
+
+bash sh ksh csh
+bash 快捷键  别名  tab键   历史命令  管道  重定向
+
+环境声明
+注释脚本功能
+代码
+
+x权限，bash，.，source
+
+环境变量  HOME  PS1  SHELL PWD  USER  UID  PATH
+位置变量 $1 $2 .....
+预定义变量  $# $* $$  $?  $0
+自定义变量  用字母数字下划线  
+
+""  
+''
+
+xy   相同  "xy"
+x y   不同 "x y"
+'xy'   相同 "xy"
+'x y'  相同  "x y"
+'$xy'  不同   "$xy"
+
+``
+
+shell中的运算
+整数
+expr  +  -  *   /  %  乘法需要转义    \* 
+$[]      需要用echo $[a+b] 查看结果
+let  不显示结果   可以修改变量的值
+let  自增减    let x++   相当于 let x=x+1
+			let x--	  相当于 let x=x-1
+			let x+=10 相当于 let x=x+10
+小数
+交互式
+bc   scale=3  //确定小数长度
+scale=3  
+10.01*10.01
+10.0001*10.01
+10.0001+10.01
+非交互式
+echo "scale=3;10.0001+10.01" | bc
+
+
+条件测试
+方法一
+test  表达式   
+方法二
+[ 表达式 ]
+echo $?  检测结果
+
+[  ==  ]   
+[  !=   ]
+read -p "请输入密码"  p
+[ -z  $p  ]&&exit||
+echo $p |passwd --stdin root
+
+&&   前面指令执行成功才执行后续任务
+||      前面指令执行失败才执行后续任务
+；   前后任务无逻辑关系
+
+数字判断
+-eq  等于   
+-ne  不等于
+-lt  小于
+-le  小于等于
+-gt  大于
+-ge  大于等于
+
+-e
+-d
+-f
+-r
+-w
+-x
+
+if判断
+单分支
+if [  ];then
+    
+fi
+
+if [  ]
+then
+	
+fi
+双分支
+if [ ];then
+
+else
+	
+fi
+
+多分支
+if [ -z $p ];then
+	exit
+elif [];then
+elif [];tehn
+
+else
+fi
+
+read -p "   " p
+
+
+判断
+#!/bin/bash
+if [ ! -d /opt/abc ];then
+	mkdir /opt/abc
+fi
+
+#!/bin/bash
+ping -c 3 -i 0.2 -W 1 $1  &>/dev/null
+if [ $? -eq 0 ];then
+      echo "$1 通了"  >> /opt/ok.txt
+else 
+		echo "$1 不通" >> /opt/no.txt
+fi
+
+保存测试结果，通了主机记录保存在/opt/ok.txt
+ 			不通的主机记录保存在/opt/no.txt
+
+-c 定义ping的次数
+-i 定义ping的间隔时间，单位是秒
+-W 定义ping结果反馈时间，单位是秒
+
+#!/bin/bash
+n=`echo $[RANDOM%10]`
+if [ $n -eq $1 ];then
+	echo "猜对了"
+elif [ $1 -gt $n ];then
+	echo "猜大了"
+else
+	echo "猜小了"
+fi
+
+echo $[RANDOM]    //获取一个随机数
+使用if判断多分支猜一个随机数：
+#!/bin/bash
+n=`echo $[RANDOM%10]`
+read -p "请输入一个数字（0～9）：" p
+if [ $n -eq $p ];then
+        echo "猜对了"
+        exit
+elif [ $p -gt $n ];then
+        echo "猜大了"
+else
+        echo "猜小了"
+fi
+
+
+
+
+expr 1 % 1   echo $[RANDOM%10+1]  0~9    1~10
+let x=x+1   let x++
+let x+=2
+echo "1+1" | bc
+echo "scale=3;10/3" | bc
+
+字符     ==      ！=       -z
+数字    -eq  -ne  -ge  -gt   -le  -lt
+文件    -e -f -d -r -w -x
+逻辑与       &&
+逻辑或        ||
+
+
+单分支
+if [];then
+
+fi
+
+
+双分支
+if [];then
+
+else
+
+fi
+
+
+多分支
+if [];then
+
+elif [];then
+
+elif [];then
+
+else
+
+fi
+
+
+for 变量名  in  循环内容
+do
+		循环任务
+done
+情况一，只关心循环次数，不看变量
+for i  in  x y z
+do
+		echo nb
+done
+情况二，不仅关心循环次数，还使用变量
+for i  in  x y z
+do
+		echo ${i}nb
+done
+
+for i  in  {1..10}
+do
+		echo ${i}nb
+done
+
+for i  in  `seq 10`
+do
+		echo ${i}nb
+done
+
+for i  in  {1..254}
+do
+		if
+
+		fi
+done
+
+#!/bin/bash
+u=0
+d=0
+for i in {1..254}
+do
+ping -c3 -i0.2 -W1 172.25.0.$i  &> /dev/null
+if [ $? -eq 0 ];then
+        echo "172.25.0.$i is up"
+		let u++
+else
+        echo "172.25.0.$i is down"
+		let d++
+fi
+done
+echo ${u}台主机是up，${d}台主机是down
+
+
+ctrl+z   //将任务放置后台
+jobs     //查看后台任务
+kill -9 %1     //杀死1号任务
+
+for i in {1..10}
+do
+	useradd $i
+done
+
+使用文件作为循环列表创建不同用户
+#!/bin/bash
+for i in `cat /opt/user`
+do
+        useradd $i
+        echo 123456 |passwd --stdin $i
+done
+
+
+while循环，控制循环次数，避免死循环
+#!/bin/bash
+i=1
+while [ 10 -gt $i ]
+do
+        echo nb
+        let i++
+done
+
+
+#!/bin/bash
+n=$[RANDOM%100+1]
+i=0
+while :
+do
+let i++
+	read -p "请给个数字（1-100）" p
+        if [ $p -eq $n ];then
+		  echo "对了,猜了$i遍"
+		  exit
+		elif [ $p -gt $n ];then
+		  echo "大了"
+		else
+		  echo "小了"		
+		fi
+
+done
+
+
+case分支，功能类似if判断，可简化脚本，但功能不如if丰富
+
+case $1 in
+redhat)
+	echo "fedora";;
+fedora)
+	echo "redhat";;
+*)
+	echo "redhat|fedora"
+esac
+
+使用 | 简化脚本
+#!/bin/bash
+case $1 in
+-t|t)
+        touch $2;;
+-e|e)
+        vim $2;;
+-c)
+        cat $2;;
+*)
+        echo "$0 -t|-e|-c filename"
+esac
+     
+使用函数实现多组命令同时执行
+vim test09
+#!/bin/bash
+mycd(){
+mkdir $1
+cd $1
+}
+mycd abcde123
+
+bash test09    //开新的子进程，创建目录后进入目录，然后退出子进程，回到父进程所在目录
+. test09   //不开启新的进程，创建目录后进入目录
+
+
+创建函数，实现同时执行2条指令
+#!/bin/bash
+mycd(){
+mkdir $1
+touch $2
+}
+mycd abcde13 xyz123
+
+
+扩展的echo使用  \033[是固定格式， 34m是某颜色，结尾的0m是恢复默认颜色，ABCDEF是输出内容
+echo -e "\033[34mABCDEF\033[0m"
+
+将扩展echo写入函数，方便之后调用
+#!/bin/bash
+cecho(){
+echo -e "\033[$1m$2\033[0m"
+}
+cecho 32  ABCD
+cecho 33  ABCD
+cecho 34  ABCD
+cecho 35  ABCD
+cecho 36  ABCD
+
+
+
+#!/bin/bash
+cecho(){
+n=$[RANDOM%6+1]
+echo -e "\033[3${n}m$1\033[0m"
+}
+cecho ABCD
+cecho ABCD
+cecho ABCD
+cecho ABCD
+cecho ABCD
+
+
+exit  终止脚本
+continue  终止当前循环，进入下一次循环
+break  终止当前循环
+
+实现多个数字的求和  最后输入0是结束
+#！/bin/bash
+x=0
+while :
+do
+	read -p "请输入求和的数字(0是结束)" p
+	[ $p -eq 0 ]&&break     //当遇到用户输入0时终止循环
+	x=$[p+x]
+done
+echo $x       //此任务是循环外的，不受break影响
+
+
+在1到20里面找出6的倍数  并且求平方
+#!/bin/bash
+for i in `seq 20`
+do
+[ $[i%6] -ne 0 ]&&continue     //求变量i除6的余数，如果余数为0，说明当前数字是6的倍数
+
+echo $[i*i]
+done
+
+
+
+复习回顾
+for i in {1..100} 或  `seq 100`
+do
+	 循环执行的指令
+done
+
+for i in `cat /opt/user.txt`
+do
+	 useradd $i
+done
+
+
+while :
+do
+	循环执行的指令1
+	循环执行的指令2
+done
+
+case 变量  in
+-e|e）
+	执行指令;;
+-c）
+	执行指令;;
+*)
+	执行指令
+esac
+
+函数名(){
+执行指令1
+执行指令2
+执行指令3
+.....
+}
+
+
+exit
+break   终止循环
+continue  跳出当前循环，继续下一次循环
+
+
+
+for i in {1..254}
+do
+	[ $i -eq 115 ]&&continue 
+	
+	ssh 172.25.0.$i  poweroff
+done
+
+115
+117
+223
+
+===============================
+节取子串
+a=abcdef
+方法一     第一个字符从0开始计算
+echo ${a:0:3}   //节取变量a中的第一个字符开始以及后续共三位
+方法二     第一个字符从1开始计算
+expr substr $a 1 3  //节取变量a中的第一个字符开始以及后续共三位
+方法三     第一个字符从1开始计算
+echo $a | cut -b 1-3  //节取变量a中的第一个字符到第三个
+
+
+随机节取一位字符
+#!/bin/bash
+a=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
+    0123456789       // 62个字符在脚本中要连贯写，不能有换行或者空格
+x=$[RANDOM%62]   // 创建随机数  0～61
+echo ${a:x:1}    // 使用方法一节取
+
+获取8位随机字符
+#!/bin/bash
+a=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
+    0123456789  
+for i in {1..8}
+do
+	x=$[RANDOM%62]
+	c=${a:x:1} 
+	y=$y$c
+done
+echo $y
+追加将随机的到的密码配给某用户，并保存成文件方便查看
+useradd $1     //根据需求创建某用户
+echo $y |passwd --stdin $1
+echo "$1的密码是$y" >> /opt/pa.txt   //将记录追加保存到文件中
+
+子串的替换
+echo ${a/替换目标/替换结果}  //只替换一个目标
+例：
+a="root:x:0:0:root:/root:/bin/bash"
+echo ${a/root/abc}
+abc:x:0:0:root:/root:/bin/bash
+echo ${a//替换目标/替换结果}  //替换所有目标
+例：
+a="root:x:0:0:root:/root:/bin/bash"
+echo ${a//root/abc}
+abc:x:0:0:abc:/abc:/bin/bash
+
+子串的删除
+echo $a    //准备变量内容
+root:x:0:0:root:/root:/bin/bash
+掐头
+echo ${a#*:}   //从左至右删除一个目标，：是目标，*代表之前所有
+x:0:0:root:/root:/bin/bash    //结果
+echo ${a#root}  //从左至右删除root字符串
+:x:0:0:root:/root:/bin/bash      //结果
+echo ${a##*:}   //从左至右删除所有目标
+/bin/bash     //结果
+去尾
+echo ${a%:*}    //从右至左删除一个目标
+root:x:0:0:root:/root    //结果
+echo ${a%%:*}    //从右至左删除所有目标
+root    //结果
+
+利用子串去尾创建批量修改扩展名的脚本
+#!/bin/bash
+for i in `ls *.doc`   //列出所有以doc结尾的文件，并依次放入循环
+do
+        n=${i%.*}     //将某个.doc的文件去尾，得到文件名n
+						例如1.doc，去尾后，得到1
+        mv $i $n.txt   //使用mv工具改名，将1.doc改为1.txt
+done
+
+赋予初值
+x=123
+${p:-123456}
+
+${p:}  截取
+${p/}  替换
+${p#}  掐头
+${p%}  去尾
+${p:-} 定义初值
+
+使用变量定义初值，避免修改密码失败
+#!/bin/bash
+read -p "请输入密码" p
+p=${p:-123456}   //定义变量p的初值，如果用户输入密码则不使用初值
+echo $p |passwd --stdin $1
+echo $p
+
+使用循环创建脚本，实现从1到p的求和，如果用入无数值输入，则p为1
+#!/bin/bash
+read -p "请输入一个数字" p
+p=${p:-1}  
+x=0
+for i in `seq $p`
+do
+	let x+=i    //x值最开始为0，每循环一次，x就加一次循环的数字
+				   比如第一循环是x+1,此时x=1，第二次循环，x+2，
+				此时x=3，以此类推
+done
+echo "1到$p的和是$x"
+
+
+expect预期交互工具
+yum -y install expect.x86_64   //安装expect工具
+
+使用预期交互工具实现程序的非交互使用。
+#!/bin/bash
+expect << EOF    //开启expect功能  EOF 开头
+
+spawn ssh -o StrictHostKeyChecking=no 172.25.0.11    //调用某交互工具
+expect "password:"  { send "redhat\r"}   //看到password：之后   输入redhat ，\r是回车
+expect "#"  { send "mkdir /opt/ABC\r"}   //看到#后 输入创建目录
+expect "#:"  { send "exit\r"}
+EOF     //结束expect功能  EOF结尾
+
+:： //注意符号的中英文版本
+expect最后一条指令不执行
+ssh -o StrictHostKeyChecking=no   //使用ssh选项，避免第一次远程连接其他主机时被询问yes|no（已经连接过可以到家目录删除相关文件后再次测试rm -rf .ssh/known_hosts）
+
+
+
+数组，可以在众多变量定义过程中简化脚本
+x=(11 22 33)      //定义数组
+echo ${x[2]}	  //查看变量x下标是2的值(第三个)
+echo ${x[@]}      //查看所有值
+x[2]=44			  //重新给下标是2的值定义内容
+
+
+
+正则表达式
+
+首先准备一个素材
+[root@desktop0 opt]# cat tt
+aaatheaa
+theeeaaayyyy
+rrrrthe
+aaa the nnn
+
+然后使用grep工具配合正则表达式过滤文本
+grep -n "^a" tt    //查找以a字符开头的行
+grep -n "y$" tt    //查找以y字符结尾的行
+grep -n "[at]" tt    //查找有字符a或者t的行
+grep -n "[^at]" tt    //显示除了字符a或者t的行
+grep -n "." tt    //显示任意单个字符
+grep -n ".*" tt   //任意单个字符出现任意次
+
+
+
+
+sed  流式编辑器，可以对文本进行非交互式的增，删，改，  查，逐行处理
+选项  -n  屏蔽默认输出
+	-r  支持扩展正则
+	-i  写入文件
+指令  p 输出指定的行
+	d  删除
+	s  替换  s/源内容/将要替换的内容/
+	i  行前插入内容
+	a  行后追加内容
+	c  把行进行替换
+准备素材
+head -3 /etc/passwd  >  /opt/user
+使用sed处理文件
+sed -n 'p' /opt/user   //输出user文件中每一行内容
+sed -n '1p' /opt/user   //输出user文件中第1行内容
+sed -n '3p' /opt/user   //输出user文件中第3行内容
+sed -n '1,3p' /opt/user   //输出user文件中第1行至第3行内容
+sed -n '1,+1p' /opt/user   //输出user文件中第1行以及后续1行内容
+sed -n '/root/p' /opt/user   //在sed中使用正则过滤文本，文本素材可以自定义，或者使用系统的/etc/passwd
+
+\(root\)
+(root)  保留（复制）     \1   粘贴
+
+sed -r 's/^(.)(.*)(.)$/\3\2\1/' nssw.txt   //使用扩展正则保留需要复制的内容，再进行位置替换的粘贴
+    
+sed -r 's/([A-Z])/[\1]/' nssw.txt   //使用扩展正则寻找大写字母，并保留（复制），替换为之前复制的第一个内容并加[ ]
+
+^(.)(.)(.*)(.)$
+利用sed制作随机点名脚本
+所需元素（思路）：
+名单表   张三  李四  王五  赵六  孙七  周八  吴九
+cat 名单表 | wc -l
+RANDOM
+sed  p
+
+#!/bin/bash
+while :
+do
+clear            //清屏
+n=`cat /opt/user | wc -l`
+m=$[RANDOM%n+1]
+sed -n "${m}p" /opt/user    //使用sed输出随机行到屏幕
+sleep 0.05
+done
+
+使用sed编写自动配置vsftpd服务的脚本，要求开启匿名上传功能
+#!/bin/bash
+yum -y install vsftpd
+sed -i 's/^#anon_u/anon_u/' /etc/vsftpd/vsftpd.conf 
+chmod o+w /var/ftp/pub
+systemctl restart vsftpd
+systemctl enable vsftpd
+
+
+sed '1i XXX' a    //在第一行前插入文字XXX
+sed '1a XXX' a    //在第一行后追加文字XXX
+sed '1c XXX' a    //把第一行替换为文字XXX
+
+^  //每行前（头）
+$  //每行后（尾）
+
+sed '1s/$/EEE/' a      //将行尾添加EEE
+sed '1s/^/EEE/' a		//将行前（头）添加EEE
+
+sed中读入文件内容与保存成新文件
+echo 777 > 7.txt   //准备素材
+sed 'r 7.txt' a   //读取7.txt文件中内容追加到a文件所有行后
+sed '1r 7.txt' a   //读取7.txt文件中内容追加到a文件第一行后
+
+sed 'w 8.txt' a   //将a文件中所有行覆盖保存到8.txt文件中
+sed '1w 8.txt' a   //将a文件中第一行覆盖保存到8.txt文件中
+${a#}
+${a%}
+
+sed -e '1w 9.txt' -e '3w 9.txt' a   //同时保存a文件中第一行和第三行到9.txt中
+
+
+
+复习回顾
 sed 选项  编辑指令   文件
 前置命令  |  sed 选项  编辑指令
 -n  屏蔽默认输出
