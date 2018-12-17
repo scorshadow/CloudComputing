@@ -41,12 +41,6 @@ bash -x yumtest    //-x选项可以显示脚本中每条命令执行的细节，
 tar -czf log`date +%Y-%m-%d`.tar.gz /var/log   //按时间定义文件名
 
 
-
-
-
-
-
-
 $0   显示执行脚本的名称
 $1~$n  显示参数
 $#  位置变量的个数
@@ -66,9 +60,6 @@ export -n a       //取消定义全局变量
 
 PS1  一级提示符    
 PS2  二级提示符
-
-
-
 
 
 bash sh ksh csh
