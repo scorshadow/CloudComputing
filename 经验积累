@@ -1,0 +1,2 @@
+起动nginx报错:[emerg] getpwnam( "nginx") failed
+原因是 没有创建nginx用户
