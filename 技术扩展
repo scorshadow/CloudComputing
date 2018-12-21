@@ -41,6 +41,13 @@ hash：系统初始hash表为空，当外部命令执行时默认会从PATH路�
 function:函数是存在内存里的一组代码的命名的元素，函数创建于脚本运行环境之中，并且可以执行。
 
 compound commands:在sehll中指循环 判断 分支 选择的表达式命令
+cd /etc
+cd /opt
+/usr/bin/cd /etc
+结果回不去opt
+执行source /usr/bin/cd /etc 或
+. /usr/bincd /etc 可以切换到 /etc
+
 命令查找方式/命令的优先级
 1.获取一个命令执行的优先级别，至上往下
 alias
@@ -50,6 +57,14 @@ alias
     hash
      $PATH
       error:command not found
+      
+vim ff
+#!/bin/bash
+ls 
+id root
+bash <ff >ff
+结果是ff文件为空，先执行重定向到ff,清空ff再执行bash,跟命令解析顺序有关
+
 
 
 
