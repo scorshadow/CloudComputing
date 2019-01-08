@@ -1,0 +1,27 @@
+解压版mysql配置 Windows10
+在mysql目录下建一个文件my.ini 文件内容如下
+[mysql]
+default-character-set=utf8
+[mysqld]
+port=3306
+basedir=D:\\programes\\databases\\mysql-5.7.24-winx64
+datadir=D:\\programes\\databases\\mysql-5.7.24-winx64\\data
+max_connections=200
+character-set-server=utf8
+default-storage-engine=INNODB
+保存
+右键开始==》以管理员模式运行cmd
+输入命令
+mysqld install
+出现 Service successfully installed
+输入命令 
+mysqld --initialize
+启动mysql
+net start mysql
+到data目录下打开.err文件，找到root用户密码 root@localhost: 密码
+用找到的密码登录
+mysql -u root -p
+
+修改mysql密码
+alter user root@localhost identified by '123456';
+
