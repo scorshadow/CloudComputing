@@ -1,3 +1,8 @@
+
+
+
+
+
 DBA DAY3
 知识点大纲
 
@@ -5,20 +10,54 @@ DBA DAY3
 1.1
 1.2
 数据导入导出
-2.1 数据导入导出检索路径 /var/lib/mysql-files/
+2.1 数据导入导出搜索路径 /var/lib/mysql-files/
 show variables like "secure_file_priv";
-检索路径可以修改
+搜索路径可以修改 【注意：不要在root目录下定义搜索路径，如:/root/mydb
 vim /etc/my.cnf
 在[mysqld]下面添加
+[mysqld]
 secure_file_priv="/mydbdir"
+:x
 mkdir /mydbdir/
 chown mysql /mydbdir
 systemctl restart mysqld
 
-2.2 
-2.3
+2.2 数据导入
+2.2.1 什么是数据导入：把系统文件的内容存储到数据库的表中
+2.2.2 命令用法
+mysql>load data infile "目录名/文件名" into talbe 表名
+FIELDS TERMINATED BY "字段分隔符"
+LINES TERMINATED BY  "\n";
+
+
+2.2.3 
+
+2.3 数据导出 
+2.3.1 把数据导出到系统文件 注意：导出的文件名不能相同;导出是表中的记录，不包括字段名 禁用SELinux 。
+2.3.2 命令用法
+select * from 表名 into outfile "目录名/文件名" field terminated by "字段分隔符" lines terminated by "/n 行分隔符" 
+
+2.3.3 练习，
+
+
 管理表记录
-3.1
-3.2
-3.3
+3.1增加表记录，给所有字段赋值
+insert into users values();
+添加N条记录
+insert into users values
+(),
+(),
+();
+插入一条记录，给指定的字段赋值
+insert into users(name,uid)values("jerry",4001);
+插入多条记录，给指定的字段赋值
+insert into user(name,uid)values(),(),();
+
+3.2 查询表记录
+select 字段 from 表名
+select 字段 from 表名  where 条件表达式
+
+3.3 更新表记录
+批量更新  update 表名 set 字段1=值,字段2=值;
+只更新符合条件的:update 表名 set 字段1=值,字段2=值 where 条件="";
 
