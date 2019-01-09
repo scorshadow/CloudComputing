@@ -220,6 +220,15 @@ select * from users where uid<=10 limit 3;
 select * from users where uid <=10 limit 6, 3; ##从查询结果的 第7行开始显示，显示3行
 
 
+day4
+多表查询
+1.复制表 
+备份数据 create table userdb.users2 select * from users;  
+快速建表,只有表结构，查询条件不成立 create table userdb.users3 select * from userdb.users where 1  > 2;
+
+
+2.
+
 
 
 
