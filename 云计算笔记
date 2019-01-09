@@ -8,6 +8,12 @@ DBA DAY3
 知识点大纲
 
 MYSQL存储引擎 
+mysql 组件
+1.1.1.管理工具 
+1.1.2 SQL接口
+1.1.3 Parser 分析器
+
+1.1 存储引擎？ 
 show engines; 查看存储引擎
 show create table 表名 //查看已创建表的存储引擎
 show table status like "users"\G;//查看已创建表的属性信息 存储引擎，创建时间，更新时间
@@ -15,11 +21,39 @@ show table status like "users"\G;//查看已创建表的属性信息 存储引�
 vim /etc/my.cnf
 [default]
 default-storage-engine="innodb"
+创建表时指定表使用的存储引擎
 
-1.1 存储引擎？ 
-1.1.1.管理工具 
-1.1.2 SQL接口
-1.1.3 Parser 分析器
+修改表使用的存储引擎
+alter table 表名 engine=innodb[myisam]
+存储引擎的特点？
+MYISAM 
+支持表级锁 给整张表加锁 加锁后其他客户端不能访问，当前客户端释放锁后其他客户端才能访问 并发量小，系统开销小
+不支持事务，事务回滚，外键
+
+表名.frm desc 表名
+表名.MYI show index from 表名  存储的是索引
+表名.MYD  select * from 表名 
+
+select ---------------->myisam  查询多的业务适合使用myisam
+
+INNODB
+支持行级锁定
+支持事务，事务回滚，外键
+
+表名.frm desc 表名 
+表名.ibd select * from 表名； +show index from 表名；
+支持行级锁 加锁后当前行不能被其他客户端访问，其他客户端可以访问 其他 行记录 并发量大，但是系统开销大
+updated ，delete insert ---->innodb  适合写操作多的业务
+
+建表时如何决定表使用哪种存储引擎
+
+锁机制
+锁粒度 
+ 表级锁：
+ 行级锁
+锁类型 
+读锁 支持并发锁
+写锁（互斥锁，排他锁），是独占锁，上锁期间其他线程不能读表或写表
 
 
 1.2
