@@ -22,7 +22,7 @@ vim /etc/my.cnf
 [default]
 default-storage-engine="innodb"
 创建表时指定表使用的存储引擎
-
+create table t4(id int) engine=innodb;
 修改表使用的存储引擎
 alter table 表名 engine=innodb[myisam]
 存储引擎的特点？
@@ -46,6 +46,7 @@ INNODB
 updated ，delete insert ---->innodb  适合写操作多的业务
 
 建表时如何决定表使用哪种存储引擎
+查询多的业务适合使用myisam  适合写操作多的业务
 
 锁机制
 锁粒度 
@@ -55,6 +56,18 @@ updated ，delete insert ---->innodb  适合写操作多的业务
 读锁 支持并发锁
 写锁（互斥锁，排他锁），是独占锁，上锁期间其他线程不能读表或写表
 
+事务 
+
+事务回滚 在事务执行过程中任意一步失败，恢复之前所有的操作。
+事务日志文件：记录对innodb的表执行过的sql操作。
+ib_logfile0:事务成功提交的日志 
+ibdata1:事务失败的日志
+
+事务特性：
+Atomic:原子性 要么全成功，要么全失败
+Consistency:一致性 事务操作的前后，表中的记录没有变化。
+Isolation：隔离性 事务操作是相互隔离不受影响的 事务未提交时
+Durability:持久性 数据一旦提交，不可改变，永久改变，永久改变表数据
 
 1.2
 数据导入导出
@@ -76,9 +89,9 @@ systemctl restart mysqld
 mysql>load data infile "目录名/文件名" into talbe 表名
 FIELDS TERMINATED BY "字段分隔符"
 LINES TERMINATED BY  "\n";
+ 
 
-
-2.2.3 
+2.2.3 练习
 
 2.3 数据导出 
 2.3.1 把数据导出到系统文件 注意：导出的文件名不能相同;导出是表中的记录，不包括字段名 禁用SELinux 。
