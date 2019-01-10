@@ -372,6 +372,20 @@ server_id=50   ##可以用当前主机的ip地址主机位作为id值
 log-bin ##启用bin_log日志
 systemctl restart mysqld
 
+分析binlog日志
+ 三种记录格式：
+ 1.statement:每一条修改数据的sql命令都记录在binlog日志中
+ 2.row:不记录sql语句上下文相关信息，仅保存哪条记录被修改。
+ 3.mixed:是以上两种格式的混合使用
+
+查看日志当前记录格式
+show variables like "binlog_format";
+修改日志记录格式
+vim /etc/my.cnf
+[mysqld]
+binlog_format=mixed 
+systemctl restart mysqld
+
 修改日志文件存储位置
 vim /etc/my.cnf
 log-bin=/logdir/plj
@@ -379,6 +393,7 @@ log-bin=/logdir/plj
 mkdir /logdir/plg
 chown mysql /logdir/
 mysqlbinlog /logdir/plj.000001 查看日志文件
+
 手动生成新的日志文件
 1.重启mysql服务
 2.执行SQL操作 mysql>flush logs
@@ -390,14 +405,7 @@ purge master logs to "ll.000002";  ##日志文件删除后，ll.index索引文�
 
 reset master; ##删除所有binlog日志，重建新日志
 
-分析binlog日志
-查看日志当前记录格式
-show variables like "binlog_format";
-修改日志记录格式
-vim /etc/my.cnf
-[mysqld]
-binlog_format=mixed 
-systemctl restart mysqld
+
 
 实时增量恢复(binlog)
 
