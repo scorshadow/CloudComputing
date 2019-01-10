@@ -301,6 +301,14 @@ show grants for admin@"%";
 
 
 3.3权限撤销
+select user,host from mysql.user;
+show grants  for root@"192.168.4.51";
+revoke grant option on *.*  from root@192.168.4.51";
+revoke delete,update on *.* from root@192.168.4.51";
+revoke all on *.* from root@"192.168.4.51";
+select user,host from mysql.user where user="root" and host="192.168.4.51";
+drop user root@"192.168.4.51";
+
 
 授权用户修改连接密码
 set password=password('123456');
@@ -339,6 +347,24 @@ mysql -uroot -p密码 库名<路径/xxx.sql
 --记录除查询外的所有SQL命令
 --可用于数据恢复
 --配置mysql主从同步的必要条件
+完全+差异
+1  差异  10  1.sql   10 
+2  差异  5   2.sql   5 
+3  差异  6   3.sql   11
+4  差异  2   4.sql   13
+5  差异  4   5.sql   17
+6  差异  1   6.sql   18
+7  差异  10  7.sql   28 
+完全+增量
+1  差异  10  1.sql   10 
+2  差异  5   2.sql   5 
+3  差异  6   3.sql   6
+4  差异  2   4.sql   2
+5  差异  4   5.sql   4
+6  差异  1   6.sql   1
+7  差异  10  7.sql   10 
+注：差异备份会把除完全备份外的备份重新备份；增量备份只备份当天增加的数据，实际生产环境中使用 完全+增量 的方式备份数据
+
 
 vim /etc/my.cnf
 server_id=50   ##可以用当前主机的ip地址主机位作为id值
