@@ -285,10 +285,44 @@ systemctl  restart mysqld.service
 
 3.3权限撤销
 
+授权用户修改连接密码
+set password=password('123456');
+管理员修改授权用户密码
+set password from ada@"192.168.4.%"=password('123456');
+
+DAY5 数据备份与恢复
+完全备份与恢复
+数据备份方式 物理备份 逻辑备份
+1物理备份 冷备，cp,tar
+cp -rp /var/lib/mysql/数据库 备份目录/文件名
+tar -czvf xxx.tar.gz /var/lib/mysql/数据库/*
+恢复
+cp -rp 备份目录/文件名 /var/lib/mysql/数据库/
+tar -zxvf xxx.tar.gz -C /var/lib/mysql/数据库名/
+
+2逻辑备份 mysql mysqldump
+备份操作
+mysqldump -uroot -p密码 库名>路径/xxx.sql
+mkdir /dbbak
+mysqldump -uroot -p123456 -A > /dbbak/full.sql
+mysqldum -uroot -p123456 userdb > /dbbak/userdb_full.sql;
+mysqldump -uroot -p123456 -B db2 userdb > /dbbak/twodb.sql;
+恢复
+mysql -uroot -p密码 库名<路径/xxx.sql
+注意 恢复时多个库的恢复库名参数不必写
+
+数据增量备份与恢复
+ --备份上次备份后，所有新产生的数据
+实时增量备份 启用binlog日志文件实现
+vim /etc/my.cnf
+server_id=50   ##可以用当前主机的ip地址主机位作为服务编号
+log-bin ##启用
+systemctl restart mysqld
+实时增量恢复
 
 
-
-
+差异备份 
+ --备份完全备份后，所有新产生的数据
 
 
 
