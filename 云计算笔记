@@ -255,6 +255,7 @@ Navicat
 mysqladmin -hlocalhost -uroot -p password "新密码"
 Enter password:旧密码
 
+
 恢复MySQL管理密码
 停止服务
 systemctl  stop mysqld.service 
@@ -395,7 +396,7 @@ show variables like "binlog_format";
 修改日志记录格式
 vim /etc/my.cnf
 [mysqld]
-binlog_format=mixed
+binlog_format=mixed 
 systemctl restart mysqld
 
 实时增量恢复(binlog)
