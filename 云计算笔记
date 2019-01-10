@@ -282,6 +282,23 @@ systemctl  restart mysqld.service
 3.1 授权库
 
 3.2用户授权
+grant 权限列表 on 库名.表名 to 用户名@"客户端地址" identified by "密码" with grant option;
+grant all on *.* to root @"192.168.4.%" identified by "123456" with grant option;
+show grants for root@"192.168.4.51";
+show grants;显示访问权限
+% 匹配所有主机
+192.168.1.%：匹配指定的一个网段
+192.168.1.1：匹配一个DNS区域
+svr1.tarena.com:匹配指定域名的单个主机
+select @@hostname;查看主机名
+select user();查看连接用户名及客户端地址
+show grants;显示访问权限
+
+grant all on testdb.* to admin@"%" identified by "123456";
+select user,host from mysql.user;
+show grants for admin@"%";
+
+
 
 3.3权限撤销
 
@@ -300,29 +317,69 @@ tar -czvf xxx.tar.gz /var/lib/mysql/数据库/*
 cp -rp 备份目录/文件名 /var/lib/mysql/数据库/
 tar -zxvf xxx.tar.gz -C /var/lib/mysql/数据库名/
 
-2逻辑备份 mysql mysqldump
-备份操作
+2逻辑备份  mysqldump
+备份操作 --all-database 或 -A 所有库
+数据库名       单个库
+数据库名 表名  单张表
+-B 数据库1 数据库2 备份多个库
+注意事项 无论备份还是恢复，都要验证用户权限
+
 mysqldump -uroot -p密码 库名>路径/xxx.sql
 mkdir /dbbak
 mysqldump -uroot -p123456 -A > /dbbak/full.sql
 mysqldum -uroot -p123456 userdb > /dbbak/userdb_full.sql;
 mysqldump -uroot -p123456 -B db2 userdb > /dbbak/twodb.sql;
-恢复
+恢复操作 mysql
 mysql -uroot -p密码 库名<路径/xxx.sql
 注意 恢复时多个库的恢复库名参数不必写
 
 数据增量备份与恢复
  --备份上次备份后，所有新产生的数据
 实时增量备份 启用binlog日志文件实现
+--记录除查询外的所有SQL命令
+--可用于数据恢复
+--配置mysql主从同步的必要条件
+
 vim /etc/my.cnf
-server_id=50   ##可以用当前主机的ip地址主机位作为服务编号
-log-bin ##启用
+server_id=50   ##可以用当前主机的ip地址主机位作为id值
+log-bin ##启用bin_log日志
 systemctl restart mysqld
-实时增量恢复
+
+修改日志文件存储位置
+vim /etc/my.cnf
+log-bin=/logdir/plj
+
+mkdir /logdir/plg
+chown mysql /logdir/
+mysqlbinlog /logdir/plj.000001 查看日志文件
+手动生成新的日志文件
+1.重启mysql服务
+2.执行SQL操作 mysql>flush logs
+3.mysqldump  --flush-logs
+4.mysql -uroot -p密码 -e 'flush logs'
+
+删除日志文件
+purge master logs to "ll.000002";  ##日志文件删除后，ll.index索引文件中的内容也会跟着改变
+
+reset master; ##删除所有binlog日志，重建新日志
+
+分析binlog日志
+查看日志当前记录格式
+show variables like "binlog_format";
+修改日志记录格式
+vim /etc/my.cnf
+[mysqld]
+binlog_format=mixed
+systemctl restart mysqld
+
+实时增量恢复(binlog)
+
+
 
 
 差异备份 
  --备份完全备份后，所有新产生的数据
+ 
 
 
 
