@@ -489,6 +489,13 @@ innobackupex --user root --password 123456 --incremental /dir1 --incremental-bas
 
 恢复完全备份中的一张数据表
 
+create table db5.b(name char(10));
+insert into db5.b values("ada");
+use db5;
+show tables;
+备份所有db5库所有数据
+innobackupex --user root --password 123456 --databases="db5" /db5bak --no-timestamp
+
 
 
 
