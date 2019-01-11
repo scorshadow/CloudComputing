@@ -497,11 +497,55 @@ show tables;
 innobackupex --user root --password 123456 --databases="db5" /db5bak --no-timestamp
 
 
+DBA 1 总结
+备份/恢复 
+1.冷备份适用于MyISAM引擎，直接复制对应的数据库目录即可；恢复时重新复制回来就行
+2.逻辑备份 mysqldump -u 用户名 -p [-B] 数据库... >数据库.sql 
+备份单库：mysqldump -u -root -p userdb>userdb.sql
+备份多个库 mysqldump -u root -p -B 库1 库2 > 库.sql
+所有库 mysqldump -u root -p --all-databases [-A]
+
+恢复  先建立空库，再执行mysql导入
+mysql -u root -p 数据库名 < 库名.sql
+
+3.增量备份 binlog日志
+vim /etc/my.cnf
+log-bin=路径    #启用日志
+server_id  #服务编号
+binlog_format="statemnet/mixed/row "
+                statement 每一条修改数据的sql都记录在binlog日志中
+                row 不记录sql语句的上下文相关信息，仅保存哪条记录被修改
+                mixed 以上两种格式的混合使用
+systemctl restart mysqld
+mysqlbinlog 工具
+----格式 mysqlbinlog [选项] binlog日志文件名
+--    --start-datetime="yyyy-mm-dd hh:mm:ss"
+--    --stop-datetime="yyyy-mm--dd hh:mm:ss"
+--    --start-position=数字
+--    --stop-position=数字
+
+查看binlog日志
+mysqlbinlog 日志文件
+
+恢复数据
+mysqlbinlog --start-datetime="yyyy-mm-dd hh:mm:ss" --stop-datetime="yyyy-mm--dd hh:mm:ss" 日志文件 ｜ mysql -u root -p
 
 
 
+innobackupex备份工具
+安装percona软件包
+innobackupex完整备份，增量备份
+恢复数据
 
-
+--host 主机名
+--port 3306
+--user 用户名
+--password密码
+--databases='库名'
+--databases='库1 库2'
+--databases='库.表'
+--no-timestamp 不用日期命名备份文件存储的子目录，使用备份的数据库名做备份目录名
+--no-timestamp 不使用日期命名备份目录名
 
 
 
