@@ -396,18 +396,21 @@ mysqlbinlog /logdir/plj.000001 查看日志文件
 
 手动生成新的日志文件
 1.重启mysql服务
-2.执行SQL操作 mysql>flush logs
-3.mysqldump  --flush-logs
-4.mysql -uroot -p密码 -e 'flush logs'
+以下三种操作生成新的日志文件
+执行SQL操作 mysql>flush logs
+mysqldump  --flush-logs
+mysql -uroot -p密码 -e 'flush logs'
 
 删除日志文件
 purge master logs to "ll.000002";  ##日志文件删除后，ll.index索引文件中的内容也会跟着改变
 
 reset master; ##删除所有binlog日志，重建新日志
 
+日志文件记录命令方式 ，使用日志恢复 数据 
 
-
+731085508919
 实时增量恢复(binlog)
+使用日志恢复数据
 
 
 
@@ -415,6 +418,64 @@ reset master; ##删除所有binlog日志，重建新日志
 差异备份 
  --备份完全备份后，所有新产生的数据
  
+总结
+mydump(锁表，写锁 适合数据量小的）
+binlog 
+
+
+
+
+
+innobackupex 实时热备不锁表 生产环境使用
+使用 XtraBackup工具
+包含两个组件：
+--xtrabackup c程序，支持InnoDB/XtraDB 
+--innobackup:以Perl脚本封装xtrabackup,还支MyISAM,但是仅支持完全备份
+
+innobackupex 选项
+--host --port  --user --password  --databases="db4,db5" dirname
+
+完全备份与恢复
+innobackupex --user root --password ... /备份路径 [--no-timestamp]
+
+恢复：
+1.drop database db5;
+systemctl stop mysqld
+2.准备恢复数据
+innobackupex --apply-log /allbak
+cat /allbak/xtrabackup_checkpoints
+3.把备份文件拷贝回数据库目录下
+rm -rf /var/lib/mysql/*
+innobackupex --copy-back /allbak
+4.修改数据库目录的所有者处级用户为mysql
+chown -R mysql:mysql /var/lib/mysql
+5.启动数据库服务
+systemctl start mysqld;
+
+增量备份与恢复
+
+
+
+
+恢复完全备份中的一张数据表
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
