@@ -25,3 +25,14 @@ mysql -u root -p
 修改mysql密码
 alter user root@localhost identified by '123456';
 
+文件加密
+1.vim编辑器
+末行模式下 :X 大写X  回车提示输入密码
+取消密码，同样末行模式下 :X  回车提示输入密码 给个空密码即可
+
+
+
+
+
+
+
