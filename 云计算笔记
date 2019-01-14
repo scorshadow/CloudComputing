@@ -565,26 +565,37 @@ DBA2
 
 
 读写分离
-装包 maxscale
+192.168.4.51做mysql主服务器 192.168.4.52 从服务器
+授权maxon,monscale用户 ip地址必须用%，若使用monscale@"192.168.4.%" 或 monscale@"192.168.4.51" 软件会自动在前面加上ipv6地址，会匹配出错。
+
+
+grant replication slave,replication client on *.* to maxmon@"%" identified by "ada123";
+grant select on mysql.*  to monscale@"%" identified by "ada123";
+
+select user,host from mysql.user where user in("maxon","monscale");
+grant insert,select on *.* to student@'%' identified by "ada123";
+
+在198.168.4.56上做读写分离服务
+装包 maxscale 
 vim /etc/maxscale.cnf
 [maxscale]
-threads=1 #线程数，改为auto,根据cpu核心数确定 
+threads=auto #线程数，改为auto,根据cpu核心数确定 
 
 第18行
-[server1]
+[server1] #定义第一台数据库服务器
 type=server
-address=192.168.4.51
-port=3306
-protocol=MySQLBackend
+address=192.168.4.51 #ip地址 
+port=3306            #端口号
+protocol=MySQLBackend 
 
-[server2]
+[server2]   #定义第二台数据库服务器
 type=server
-address=192.168.4.52
-port=3306
+address=192.168.4.52  #ip地址
+port=3306  #端口号
 protocol=MySQLBackend
 
 第35行
-[MySQL Monitor]
+[MySQL Monitor] 
 type=monitor
 module=mysqlmon
 servers=server1,server2
@@ -596,18 +607,67 @@ monitor_interval=10000
 只读服务器不定义，全部注释
 
 63行
-[Read-Write Service]
+[Read-Write Service] #定义读写分离服务
 type=service
 router=readwritesplit
-servers=server1,server2
-user=monscale
-password=ada123
+servers=server1,server2  #定义读写分离服务在server1,server2之间进行
+user=monscale            #连接数据库服务器的监控用户名
+password=ada123          #密码
 max_slave_connection=100%
+85行 Read-Only Listener注释掉
+
+[MaxAdmin Listener] #定义读写分离服务使用的端口号
+type=listener
+
+port=4016 #端口号定义一个没被占用的，不指定的话有默认的
+
+启动服务
+maxscale -f /etc/maxscale.cnf
+ps -C maxscale 查看maxscale进程
+pkill maxscale  
+
+maxadmin -P4016 -uadmin -pmariadb
+MaxScale>list servers
+客户端测试 192.168.4.50上
+mysql -h192.168.4.56 -P4006 -uada -pada123 
+
+
+MySQL多实例
+
+停止服务mysqld 把/etc/my.cnf移走或删除.20
+1）装包：
+ 在192.168.4.50上装包mysql-5.7.20-linux-glibc2.12-x86_64.tar.gz
+解压后，mv mysql-5.7.20-linux-glibc2.12-x86_64 /usr/local/mysql
+2）修改主配置文件：
+vim /etc/my.cnf
+[mysqld_multi]
+mysqld=/usr/local/mysql/bin/mysqld_safe
+mysqladmin=/usr/local/mysql/bin/mysqladmin
+user=root
+
+[mysqld1]
+datadir=/dir1
+port=3307
+socket=/dir1/mysql1.sock
+log-error=/dir1/mysql1.err
+
+[mysql2]
+datadir=/dir2
+port=3308
+socket=/dir2/mysql2.sock
+log-error=/dir1/mysql2.err
 
 
 
 
 
+
+
+
+
+
+3）
+MySQL性能调优
 
 
 
