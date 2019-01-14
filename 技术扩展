@@ -67,6 +67,83 @@ bash <ff >ff
 
 
 
+命令行下的虚拟机管理
+virsh list --all   显示所有虚拟机
+virsh shutdown name
+virsh start name
+virsh destroy name 
+virsh console name  控制接口连接虚拟机
+
+0. vim /etc/hosts
+1.virsh console name 
+  ifconfig eth0
+2.for i in 192.168.4.{50..57}
+do
+ ssh-copy-id $i
+done
+123456
+
+3.主机名，永久ip
+ssh $i "hostnamectl set-hostname $i"
+ssh $i "nmcli connection"
+
+4.自定义仓库
+tar xf mysql-5.7.17.tar -C /var/ftp/mysql
+createrepo /var/ftp/mysql
+5.传yum源
+scp 
+
+
+
+
+
+
+
+
+cd /etc/libvirt/qemu/networks    private1,2 public1/2 网卡配置文件
+for i in {50..57}
+do
+ virsh undefine $i   #删除虚拟机配置文件
+done
+
+cd /var/lib/libvirt/images #虚拟机镜像文件
+指量clone虚拟机
+for i in {50..57}
+do
+ echo $i | clone-vm7
+done
+
+
+
+virsh console rh7_node50 进入直接配 临时ip ifconfig eth0 ip   ctrl + ] 退出到真机
+
+免密登录
+
+传公钥
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
