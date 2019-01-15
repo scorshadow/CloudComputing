@@ -69,17 +69,18 @@ bash <ff >ff
 
 命令行下的虚拟机管理
 virsh list --all   显示所有虚拟机
-virsh shutdown name
-virsh start name
-virsh destroy name 
+virsh shutdown name 关闭虚拟机
+virsh start name    启动虚拟机  
+virsh destroy name  
 virsh console name  控制接口连接虚拟机
-
+ virsh undefine $i   #取消虚拟机实际是删除虚拟机文件
+ 
 0. vim /etc/hosts
 1.virsh console name 
   ifconfig eth0
 2.for i in 192.168.4.{50..57}
 do
- ssh-copy-id $i
+ ssh-copy-id $i  #复制真机公钥到虚拟机
 done
 123456
 
@@ -106,8 +107,8 @@ do
  virsh undefine $i   #删除虚拟机配置文件
 done
 
-cd /var/lib/libvirt/images #虚拟机镜像文件
-指量clone虚拟机
+cd /var/lib/libvirt/images #虚拟机镜像文件目录
+批量clone虚拟机
 for i in {50..57}
 do
  echo $i | clone-vm7
@@ -117,7 +118,12 @@ done
 
 virsh console rh7_node50 进入直接配 临时ip ifconfig eth0 ip   ctrl + ] 退出到真机
 
-免密登录
+ssh免密登录工作原理
+/root/.ssh
+客户端ssh---->服务端
+服务端 公钥对一串随机字符串加密，加密过后的字符还给客户端
+客户端 用私钥开始解密 字符串-->已解密的字符串传给服务端
+服务端对比两个随机字符串，一样则登录，不同禁止登录
 
 传公钥
 
