@@ -12,7 +12,7 @@ default-storage-engine=INNODB
 保存
 右键开始==》以管理员模式运行cmd
 输入命令
-mysqld install
+mysqld --install
 出现 Service successfully installed
 输入命令 
 mysqld --initialize
@@ -21,9 +21,21 @@ net start mysql
 到data目录下打开.err文件，找到root用户密码 root@localhost: 密码
 用找到的密码登录
 mysql -u root -p
-
 修改mysql密码
 alter user root@localhost identified by '123456';
+
+若是出现错误，如‘系统服务错误 2’ 
+方法一
+1先把mysqld服务卸载，mysqld --remove 
+2进入mysql的bin目录下，再次执行 mysqld ---install
+3net start mysql 
+方法二
+更改注册表：找到 
+HKEY_LOCAL_MACHINE-SYSTEM-CurrentControlSet 
+-services-mysql(服务名) 
+-ImagePath 
+更改为：”C:\Program Files\MySQL\bin\mysqld” –defaults-file=”C:\Program Files\MySQL\my.ini” mysql
+目录为你 mysql的bin目录的实际目录
 
 文件加密/解密
 1.vim编辑器
