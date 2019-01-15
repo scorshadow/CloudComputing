@@ -697,6 +697,18 @@ ss -utnlp | grep mysqld
 MySQL性能调优
 
 
+MYSQL高可用集群
+集群分类：高可用HA(Keppalived0 LB(LVS
+MHA软件：mha-mysql-manager mha-mysql-node
+MHA软件实现0~30s内恢复故障
+MHA 一主加多从实现高可用集群
+MHA工作过程：当master故障时，Manager自动将拥有最新数据的slave提升为新的master
+环境搭建 
+把相关软件自定义yum仓库[包括系统光盘自带的perl包]
+51~56 yum -y install perl* mha4mysql-node-norach
+56机上还要安装 mha4mysql-manager  tar解压后，执行 perl Makefile-->make && make install
+
+
 
 
 
