@@ -85,25 +85,35 @@ done
   ifconfig eth0 ip
 2.for i in 192.168.4.{50..57}
 do 
- ssh-copy-id $i  #复制真机公钥到虚拟机
+ ssh-copy-id $i  #复制真机公钥到虚拟机,真机免密登录到虚拟机
 done
 123456
 
 3.主机名，永久ip
-ssh $i "hostnamectl set-hostname $i"
-ssh $i "nmcli connection"
+for i in 192.168.4.{50..57}
+do
+ ssh $i "hostnamectl set-hostname mysql$i"
+  "nmcli connection modify eth0 ipv4.method manual ipv4.addresses $i connection.autoconnect yes && nmcli connection up eth0 "
+done
 
 4.自定义仓库
 tar xf mysql-5.7.17.tar -C /var/ftp/mysql
 createrepo /var/ftp/mysql
 5.传yum源
-scp 
-
-
-
-
-
-
+for i in  mysql{50..57}
+do
+ scp /etc/yum.repos.d/.repo mysql$i:/etc/yum.repos.d/
+done
+6.取消yes/no
+for i in  mysql{50..57}
+do
+  ssh $i "sed -i '35s/ask/no/;35s/#//' /etc/ssh/ssh_config"
+done
+7.虚拟机两两免密码登录 
+for i in mysql{50..57}
+do
+scp /root/.ssh/id_rsa $i:/root/.ssh/
+done
 
 
 cd /etc/libvirt/qemu/networks    private1,2 public1/2 网卡配置文件
