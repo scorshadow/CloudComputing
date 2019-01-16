@@ -850,13 +850,19 @@ mysql> select user,host from mysql.user where user="root";
 2 rows in set (0.00 sec)
 
  masterha_check_ssh --conf=/etc/mha/app1.cnf
+ 
  masterha_check_repl --conf=/etc/mha/app1.cnf
 MySQL Replication Health is OK.  //验证成功
-测试主配置文件
 
-
-
-
+启动管理服务MHA_Manager
+ masterha_manager --conf=/etc/mha_manager/app1.cnf \  
+ --remove_dead_master_conf --ignore_last_failover 
+ 查看状态（另开一个终端）
+masterha_check_status  --conf=/etc/mha_manager/app1.cnf
+app1 (pid:15745) is running(0:PING_OK), master:192.168.4.51
+停止服务
+masterha_stop  --conf=/etc/mha_manager/app1.cnf
+Stopped app1 successfully.
 
 
 
