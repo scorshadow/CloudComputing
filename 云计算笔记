@@ -713,18 +713,148 @@ MHA工作过程：当master故障时，Manager自动将拥有最新数据的slav
 备用主库52，53既是主库，也是从库，所以都要既要授权，也要指向主库
 配置主库51
 grant replication slave on *.* to repluser@"%" identified by "ada123";
+vim /etc/my.cnf
+[mysqld]
+plugin-load = "rpl_semi_sync_master=semisync_master.so;rpl_semi_sync_slave=semisync_slave.so"
+rpl-semi-sync-master-enabled = 1
+rpl-semi-sync-slave-enabled = 1
+server_id=51
+log-bin=master51
+binlog-format="mixed"
+
 配置备用主库52  
 change master to masgrant replication slave on *.* to repluser@"%" identified by "ada123";ter_host="192.168.4.51", master_user="repluser",master_password="ada123",master_log_file="master51.000001",master_log_pos="154";
 grant replication slave on *.* to repluser@"%" identified by "ada123";
+
+vim /etc/my.cnf
+[mysqld]
+plugin-load ="rpl_semi_sync_master=semisync_master.so;rpl_semi_sync_slave=semisync_slave.so"
+rpl-semi-sync-master-enabled = 1
+rpl-semi-sync-slave-enabled = 1
+server_id=52
+log-bin=master52
+binlog-format="mixed"
+mysql>start slave
+mysql>show slave status\G;
+            Slave_IO_Running: Yes
+            Slave_SQL_Running: Yes
+
 配置备用主库53
 change master to masgrant replication slave on *.* to repluser@"%" identified by "ada123";ter_host="192.168.4.51", master_user="repluser",master_password="ada123",master_log_file="master51.000001",master_log_pos="154";
 grant replication slave on *.* to repluser@"%" identified by "ada123";
+
+mysql>start slave
+mysql>show slave status\G;
+            Slave_IO_Running: Yes
+            Slave_SQL_Running: Yes
+
+vim /etc/my.cnf
+[mysqld]
+plugin-load ="rpl_semi_sync_master=semisync_master.so;rpl_semi_sync_slave=semisync_slave.so"
+rpl-semi-sync-master-enabled = 1
+rpl-semi-sync-slave-enabled = 1
+server_id=53
+log-bin=master53
+binlog-format="mixed"
+
 配置从库54
 change master to masgrant replication slave on *.* to repluser@"%" identified by "ada123";ter_host="192.168.4.51", master_user="repluser",master_password="ada123",master_log_file="master51.000001",master_log_pos="154";
 
-配置从库55
+vim /etc/my.cnf
+[mysqld]
+server_id=54
+mysql>start slave
+mysql>show slave status\G;
+            Slave_IO_Running: Yes
+            Slave_SQL_Running: Yes
 
-配置管理56
+配置从库55
+change master to masgrant replication slave on *.* to repluser@"%" identified by "ada123";ter_host="192.168.4.51", master_user="repluser",master_password="ada123",master_log_file="master51.000001",master_log_pos="154";
+
+vim /etc/my.cnf
+[mysqld]
+server_id=55
+
+mysql>start slave
+mysql>show slave status\G;
+            Slave_IO_Running: Yes
+            Slave_SQL_Running: Yes
+
+3.2配置管理主机56
+3.2.1创建主配置文件并根据设置做对应的配置
+mkdir /etc/mha
+cp mha4mysql-manager-0.56/samples/conf/app1.cnf /etc/mha/
+vim /etc/mha/app1.cnf
+
+[server default]
+manager_workdir=/etc/mha_manager
+manager_log=/etc/mha_manager/manager.log
+master_ip_failover_script=/usr/local/bin/master_ip_failover
+ssh_user=root
+ssh_port=22
+
+repl_user=repluser
+repl_password=ada123
+
+user=root
+password=ada123
+[server1]
+hostname=192.168.4.51    
+port=3306
+[server2]
+hostname=192.168.4.52
+port=3306            
+candidate_master=1
+[server3]
+hostname=192.168.4.53
+port=3306
+candidate_master=1
+[server4]
+hostname=192.168.4.54
+no_master=1
+[server5]
+hostname=192.168.4.55
+no_master=1
+
+创建故障切换脚本
+cp mha-soft-student/master_ip_failover /etc/mha/
+chmod +x /etc/mha/master_ip_failover
+把vip地址192.168.4.100部署在当前主库51上
+vim /etc/mha/master_ip_failover
+在所有数据库服务器添加监控用户
+mysql>grant all on *.* to root@'%' identified by 'ada123';
+
+验证配置环境 在主机52，53检查是否有同步数据的用户repluser
+select user,host from mysql.user where user="repluser";
++----------+------+
+| user     | host |
++----------+------+
+| repluser | %    |
++----------+------+
+1 row in set (0.00 sec)
+mysql> show grants for repluser@"%";
++--------------------------------------------------+
+| Grants for repluser@%                            |
++--------------------------------------------------+
+| GRANT REPLICATION SLAVE ON *.* TO 'repluser'@'%' |
++--------------------------------------------------+
+ 在51的主机上做root的授权，其他的会同步（如果不做，在验证数据节点的主从同步配置时会出错）
+mysql> grant all on *.* to root@"%" identified by "123456";
+mysql> select user,host from mysql.user where user="root";
++------+-----------+
+| user | host      |
++------+-----------+
+| root | %         |
+| root | localhost |
++------+-----------+
+2 rows in set (0.00 sec)
+
+ masterha_check_ssh --conf=/etc/mha/app1.cnf
+ masterha_check_repl --conf=/etc/mha/app1.cnf
+MySQL Replication Health is OK.  //验证成功
+测试主配置文件
+
+
 
 
 
