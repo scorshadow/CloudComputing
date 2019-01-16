@@ -710,14 +710,20 @@ MHA工作过程：当master故障时，Manager自动将拥有最新数据的slav
 
 3部署MHA集群
 3.1 部署mysql 一主多从 主从同步结构
+备用主库52，53既是主库，也是从库，所以都要既要授权，也要指向主库
 配置主库51
-配置主库52  
-change master to master_host="192.168.4.51", master_user="repluser",master_password="ada123",master_log_file="master51.000001",master_log_pos="154";
-
-
-配置从库53
+grant replication slave on *.* to repluser@"%" identified by "ada123";
+配置备用主库52  
+change master to masgrant replication slave on *.* to repluser@"%" identified by "ada123";ter_host="192.168.4.51", master_user="repluser",master_password="ada123",master_log_file="master51.000001",master_log_pos="154";
+grant replication slave on *.* to repluser@"%" identified by "ada123";
+配置备用主库53
+change master to masgrant replication slave on *.* to repluser@"%" identified by "ada123";ter_host="192.168.4.51", master_user="repluser",master_password="ada123",master_log_file="master51.000001",master_log_pos="154";
+grant replication slave on *.* to repluser@"%" identified by "ada123";
 配置从库54
+change master to masgrant replication slave on *.* to repluser@"%" identified by "ada123";ter_host="192.168.4.51", master_user="repluser",master_password="ada123",master_log_file="master51.000001",master_log_pos="154";
+
 配置从库55
+
 配置管理56
 
 
