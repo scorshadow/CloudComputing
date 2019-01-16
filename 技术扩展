@@ -71,9 +71,9 @@ bash <ff >ff
 virsh list --all   显示所有虚拟机
 virsh shutdown name 关闭虚拟机
 virsh start name    启动虚拟机  
-virsh destroy name  
-virsh console name  控制接口连接虚拟机
- virsh undefine $i   #取消虚拟机实际是删除虚拟机文件
+virsh destroy name  强制关闭虚拟机
+virsh console name  远程控制虚拟机
+virsh undefine $i   #取消虚拟机实际是删除虚拟机文件
  
 0. vim /etc/hosts
 1.virsh console name 
