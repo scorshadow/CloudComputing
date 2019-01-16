@@ -77,7 +77,7 @@ virsh undefine $i   #取消虚拟机实际是删除虚拟机文件
  
 0. vim /etc/hosts
 1.virsh console name 
-  ifconfig eth0
+  ifconfig eth0 ip
 2.for i in 192.168.4.{50..57}
 do
  ssh-copy-id $i  #复制真机公钥到虚拟机
