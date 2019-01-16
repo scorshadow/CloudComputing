@@ -855,6 +855,9 @@ mysql> select user,host from mysql.user where user="root";
 MySQL Replication Health is OK.  //验证成功
 
 启动管理服务MHA_Manager
+--remove_dead_master_conf	//删除宕机主库配置
+--ignore_last_failover //忽略xxx.health文件
+
  masterha_manager --conf=/etc/mha_manager/app1.cnf \  
  --remove_dead_master_conf --ignore_last_failover 
  查看状态（另开一个终端）
